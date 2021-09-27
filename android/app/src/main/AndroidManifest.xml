@@ -2,6 +2,7 @@
     package="com.example.herewego">
    <application
         android:label="herewego"
+        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

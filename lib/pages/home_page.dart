@@ -16,8 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  var isLoading = false;
   List<Post> items = [];
-
   
   Future openDetail() async{
     Map results = await Navigator.of(context).push(new MaterialPageRoute(
@@ -39,6 +39,9 @@ class _HomePageState extends State<HomePage> {
   }
 
    _apiGetPost() async {
+    setState(() {
+      isLoading = true;
+    });
     var id = await Prefs.loadUserId();
     RTDBService.getPosts(id).then((response) => {
       _respPost(response)
@@ -47,6 +50,7 @@ class _HomePageState extends State<HomePage> {
 
    _respPost(List<Post> posts){
     setState(() {
+      isLoading = false;
       items = posts;
     });
    }
@@ -66,11 +70,19 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (ctx, i){
-          return itemOfList(items[i]);
-        },
+      body:  Stack(
+        children: [
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (ctx, i){
+              return itemOfList(items[i]);
+            },
+          ),
+          isLoading ? Center(
+            child: CircularProgressIndicator()
+          ):
+          SizedBox.shrink()
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepOrange,
@@ -88,6 +100,15 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          Container(
+            height: 200,
+            width: double.infinity,
+            child: post.img_url == null ?
+            Image.asset("assets/images/ic_default.jpg", fit: BoxFit.cover,):
+            Image.network(post.img_url, fit: BoxFit.cover,)
+          ),
+          SizedBox(height: 5,),
           Text(post.firstName + " " + post.lastName, style: TextStyle(fontSize: 20),),
           SizedBox(height: 5,),
           Text(post.date, style: TextStyle(fontSize: 16),),
